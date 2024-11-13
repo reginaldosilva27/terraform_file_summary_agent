@@ -2,5 +2,5 @@
 .env
 .DS_Store
 DS_Store
-__pycache
+__pycache__
 uv.lock
