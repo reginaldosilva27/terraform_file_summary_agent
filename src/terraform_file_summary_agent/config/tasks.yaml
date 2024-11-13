@@ -1,0 +1,76 @@
+read_terraform_files_task:
+  description: |
+    Analyze the contents of all Terraform files located in {directory_path}. 
+    Extract comprehensive details about every resource and configuration found, 
+    focusing on critical aspects while avoiding redundant information. 
+    Ensure the extraction includes:
+    - Quantities of each resource type
+    - Detailed configurations for each resource type.
+    - Key settings and parameters for all relevant resources.
+    - Counts of each resource type.
+    - Compute configurations, such as autoscaling settings and node quantities.
+    - Job configurations, including compute resources, task counts, and schedules.
+    - SQL Compute settings, detailing cluster sizes and quantities.
+    - Identification of workspace administrators.
+    - Counts of catalogs, tables, and schemas.
+    - Quantification of notebooks and scripts, particularly files with extensions .py and .sql.
+  expected_output: |
+    A structured report containing:
+    - A breakdown of all key components and configurations extracted from the Terraform files.
+    - Quantities of each resource type
+    - Resource counts and compute configurations.
+    - Detailed summaries of jobs, clusters, and SQL Compute settings.
+    - Counts of administrators, catalogs, tables, schemas, and code files.
+  async_execution: false
+  agent: terraform_reader
+
+databricks_assessment:
+  description: |
+    Conduct a thorough review of all Databricks configurations identified from the Terraform files. 
+    Provide insights, highlight deviations from best practices, and suggest optimizations. 
+    Focus on:
+    - Identification of non-standard or modified settings.
+    - Quantities of each resource type
+    - Detection of oversized clusters or inefficient autoscaling configurations.
+    - Analysis of external libraries and their usage.
+    - Clusters not enabled with Unity Catalog.
+    - Databricks Runtime versions older than 14.3.
+    - Jobs assigned to individual (personal) owners.
+    - Jobs lacking configured alerts.
+    - High-access or security concerns (e.g., overly permissive access).
+    - SQL Compute resources that are over-provisioned.
+    - Workspace administrators and their activities.
+    - Additional best practice recommendations tailored to the specific environment.
+  expected_output: |
+    A comprehensive list of insights and recommendations, including:
+    - Identified non-standard configurations.
+    - Quantities of each resource type
+    - Potential security risks and misconfigurations.
+    - Recommendations for cluster right-sizing and optimization.
+    - Best practices to improve overall efficiency and security.
+  async_execution: false
+  agent: databricks_specialist
+  context:
+    - read_terraform_files_task
+
+generate_report_task:
+  description: |
+    Generate a detailed assessment report in Markdown format at {output_file_path}. 
+    The report should integrate findings from both the Terraform analysis and the Databricks configuration review. 
+    Ensure the report is well-structured, visually appealing, and comprehensive. 
+    The report should include:
+    - A summary of extracted Terraform configurations and resource counts.
+    - Detailed insights from the Databricks assessment.
+    - Recommendations for optimizations, improvements, and best practices.
+    - Links to specific resources or configurations identified during the analysis.
+  expected_output: |
+    A complete Markdown report located at {output_file_path} that includes:
+    - All insights and configurations extracted by terraform_reader and databricks_specialist agents.
+    - Structured sections covering each category of findings.
+    - Full details without summarization, ensuring clarity and thoroughness.
+    - Recommendations for enhancements based on best practices.
+  async_execution: false
+  agent: report_generator
+  context:
+    - read_terraform_files_task
+    - databricks_assessment
